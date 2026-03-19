@@ -676,9 +676,29 @@ def download_builder(
                 file_size = os.stat(original_download_path or download_path).st_size
                 photo_size = version.size
                 if file_size != photo_size:
-                    download_path = (f"-{photo_size}.").join(download_path.rsplit(".", 1))
-                    logger.debug("%s deduplicated", truncate_middle(download_path, 96))
-                    file_exists = os.path.isfile(download_path)
+                    # When --set-exif-datetime is active, piexif re-serializes the
+                    # EXIF APP1 segment after download, which changes the file size
+                    # by a small amount (typically <5KB). Treat small size differences
+                    # on locally-modified files as the same asset to avoid false dedup.
+                    # See: icloud-photos-downloader/icloud_photos_downloader#1277
+                    from foundation.string_utils import endswith, lower
+
+                    is_jpeg = compose(endswith((".jpg", ".jpeg")), lower)
+                    size_diff = abs(file_size - photo_size)
+                    if set_exif_datetime and is_jpeg(filename) and size_diff <= 4096:
+                        logger.debug(
+                            "%s size differs by %d bytes (likely EXIF re-serialization), skipping dedup",
+                            truncate_middle(download_path, 96),
+                            size_diff,
+                        )
+                    else:
+                        download_path = (f"-{photo_size}.").join(
+                            download_path.rsplit(".", 1)
+                        )
+                        logger.debug(
+                            "%s deduplicated", truncate_middle(download_path, 96)
+                        )
+                        file_exists = os.path.isfile(download_path)
             if file_exists:
                 counter.increment()
                 logger.debug("%s already exists", truncate_middle(download_path, 96))
