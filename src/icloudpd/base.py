@@ -676,9 +676,27 @@ def download_builder(
                 file_size = os.stat(original_download_path or download_path).st_size
                 photo_size = version.size
                 if file_size != photo_size:
-                    download_path = (f"-{photo_size}.").join(download_path.rsplit(".", 1))
-                    logger.debug("%s deduplicated", truncate_middle(download_path, 96))
-                    file_exists = os.path.isfile(download_path)
+                    # When --set-exif-datetime is active, piexif.insert() replaces
+                    # the entire EXIF APP1 segment, changing file size unpredictably
+                    # (observed: -3739 to +102 bytes). The size invariant is broken
+                    # by design for EXIF-injected JPEGs, so skip size comparison.
+                    from foundation.string_utils import endswith, lower
+
+                    is_jpeg = compose(endswith((".jpg", ".jpeg")), lower)
+                    if set_exif_datetime and is_jpeg(filename):
+                        logger.debug(
+                            "%s size differs by %d bytes (EXIF-injected, skipping size dedup)",
+                            truncate_middle(download_path, 96),
+                            file_size - photo_size,
+                        )
+                    else:
+                        download_path = (f"-{photo_size}.").join(
+                            download_path.rsplit(".", 1)
+                        )
+                        logger.debug(
+                            "%s deduplicated", truncate_middle(download_path, 96)
+                        )
+                        file_exists = os.path.isfile(download_path)
             if file_exists:
                 counter.increment()
                 logger.debug("%s already exists", truncate_middle(download_path, 96))
