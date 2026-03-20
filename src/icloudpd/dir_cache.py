@@ -43,8 +43,9 @@ class DirCache:
                         )
                     except OSError:
                         pass
-        except OSError:
-            logger.warning("Failed to scan directory %s", directory)
+        except OSError as e:
+            if os.path.isdir(directory):
+                logger.warning("Failed to scan directory %s: %s", directory, e)
         self._cache[directory] = entries
         return entries
 

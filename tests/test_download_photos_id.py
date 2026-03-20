@@ -12,6 +12,9 @@ import pytest
 from piexif._exceptions import InvalidImageDataError
 from requests import Response
 
+import pytz
+from tzlocal import get_localzone
+
 from icloudpd import constants
 from icloudpd.string_helpers import truncate_middle
 from pyicloud_ipd.asset_version import AssetVersion
@@ -2262,12 +2265,16 @@ class DownloadPhotoNameIDTestCase(TestCase):
             "Skipping IMG_7404_QVI5TWx.MOV, only downloading photos.",
             result.output,
         )
+        _lz = get_localzone()
+        _img7407_created = datetime.datetime.fromtimestamp(1532951045108 / 1000.0, tz=pytz.utc).astimezone(_lz)
+        _img7408_created = datetime.datetime.fromtimestamp(1532951050176 / 1000.0, tz=pytz.utc).astimezone(_lz)
+        _threshold = datetime.datetime(2018, 7, 31).astimezone(_lz)
         self.assertIn(
-            "Skipping IMG_7407_QVovd0F.JPG, as it was created 2018-07-30 11:44:05.108000+00:00, before 2018-07-31 00:00:00+00:00.",
+            f"Skipping IMG_7407_QVovd0F.JPG, as it was created {_img7407_created}, before {_threshold}.",
             result.output,
         )
         self.assertIn(
-            "Skipping IMG_7408_QVI4T2l.JPG, as it was created 2018-07-30 11:44:10.176000+00:00, before 2018-07-31 00:00:00+00:00.",
+            f"Skipping IMG_7408_QVI4T2l.JPG, as it was created {_img7408_created}, before {_threshold}.",
             result.output,
         )
         self.assertIn("All photos have been downloaded", result.output)
@@ -2339,8 +2346,11 @@ class DownloadPhotoNameIDTestCase(TestCase):
                 result.output,
             )
 
+        _lz = get_localzone()
+        _img7409_created = datetime.datetime.fromtimestamp(1533021744816 / 1000.0, tz=pytz.utc).astimezone(_lz)
+        _threshold = datetime.datetime(2018, 7, 31).astimezone(_lz)
         self.assertIn(
-            "Skipping IMG_7409_QVk2Yyt.JPG, as it was created 2018-07-31 07:22:24.816000+00:00, after 2018-07-31 00:00:00+00:00.",
+            f"Skipping IMG_7409_QVk2Yyt.JPG, as it was created {_img7409_created}, after {_threshold}.",
             result.output,
         )
         self.assertIn("All photos have been downloaded", result.output)
