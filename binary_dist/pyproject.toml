@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "setuptools>=75.6.0,<76",
-    "wheel>=0.45.1,<0.46",
+    "wheel>=0.46.2,<0.47",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -25,7 +25,7 @@ classifiers = [
 
 [project.optional-dependencies]
 dev = [
-    "wheel>=0.40.0,<0.41"
+    "wheel>=0.46.2,<0.47"
 ]
 
 [project.urls]
