@@ -49,7 +49,7 @@ doc = [
 ]
 dev = [
     "twine==6.1.0",
-    "pyinstaller==6.14.0",
+    "pyinstaller==6.19.0",
     "wheel==0.46.2",
 ]
 devlinux = [
