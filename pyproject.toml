@@ -73,7 +73,7 @@ test = [
     "types-urllib3==1.26.25.14",
     "types-tqdm==4.67.3.20260303",
     "types-mock==5.2.0.20250924",
-    "types-waitress==3.0.1.20241117",
+    "types-waitress==3.0.1.20260316",
 ]
 
 [project.urls]
