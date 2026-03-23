@@ -53,7 +53,7 @@ dev = [
     "wheel==0.46.2",
 ]
 devlinux = [
-    "auditwheel==6.4.0",
+    "auditwheel==6.6.0",
     #"staticx==0.14.1",
     "scons==4.9.1"
 ]
