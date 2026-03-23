@@ -60,7 +60,7 @@ devlinux = [
 test = [
     "pytest==8.4.0",
     "mock==5.2.0",
-    "freezegun==1.5.2",
+    "freezegun==1.5.5",
     "vcrpy==7.0.0",
     "pytest-cov==6.2.1",
     "ruff==0.11.13",
