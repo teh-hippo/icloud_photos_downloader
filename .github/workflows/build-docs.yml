@@ -30,7 +30,7 @@ jobs:
         mkdir -p .cache/root/.cargo/registry
       
     - name: Inject docker cache
-      uses: reproducible-containers/buildkit-cache-dance@v3.1.2
+      uses: reproducible-containers/buildkit-cache-dance@v3.3.2
       with:
         cache-map: |
           {
