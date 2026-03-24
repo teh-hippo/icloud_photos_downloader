@@ -48,7 +48,7 @@ doc = [
     "myst-parser==3.0.1"
 ]
 dev = [
-    "twine==6.1.0",
+    "twine==6.2.0",
     "pyinstaller==6.19.0",
     "wheel==0.46.2",
 ]
