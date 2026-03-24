@@ -48,6 +48,7 @@ from icloudpd.dir_cache import DirCache
 from icloudpd.email_notifications import send_2sa_notification
 from icloudpd.filename_policies import build_filename_with_policies, create_filename_builder
 from icloudpd.log_level import LogLevel
+from icloudpd.manifest import ManifestDB
 from icloudpd.mfa_provider import MFAProvider
 from icloudpd.password_provider import PasswordProvider
 from icloudpd.paths import local_download_path, remove_unicode_chars
@@ -55,7 +56,11 @@ from icloudpd.server import serve_app
 from icloudpd.status import Status, StatusExchange
 from icloudpd.string_helpers import parse_timestamp_or_timedelta, truncate_middle
 from icloudpd.xmp_sidecar import generate_xmp_file
-from pyicloud_ipd.asset_version import add_suffix_to_filename, calculate_version_filename
+from pyicloud_ipd.asset_version import (
+    AssetVersion,
+    add_suffix_to_filename,
+    calculate_version_filename,
+)
 from pyicloud_ipd.base import PyiCloudService
 from pyicloud_ipd.exceptions import (
     PyiCloudAPIResponseException,
@@ -399,6 +404,10 @@ def _process_all_users_once(
             )
 
             dir_cache = DirCache()
+            manifest: ManifestDB | None = None
+            if user_config.directory is not None and os.path.isdir(user_config.directory):
+                manifest = ManifestDB(user_config.directory)
+                manifest.open()
             downloader = (
                 partial(
                     download_builder,
@@ -418,6 +427,7 @@ def _process_all_users_once(
                     filename_builder,
                     user_config.align_raw,
                     dir_cache,
+                    manifest,
                 )
                 if user_config.directory is not None
                 else (lambda _s, _c, _p: False)
@@ -439,17 +449,22 @@ def _process_all_users_once(
 
             # Use core_single_run since we've disabled watch at this level
             logger.info(f"Processing user: {user_config.username}")
-            result = core_single_run(
-                logger,
-                status_exchange,
-                global_config,
-                user_config,
-                password_providers_dict,
-                passer,
-                downloader,
-                notificator,
-                lp_filename_generator,
-            )
+            try:
+                result = core_single_run(
+                    logger,
+                    status_exchange,
+                    global_config,
+                    user_config,
+                    password_providers_dict,
+                    passer,
+                    downloader,
+                    notificator,
+                    lp_filename_generator,
+                    manifest,
+                )
+            finally:
+                if manifest is not None:
+                    manifest.close()
 
             # If any user config fails and we're not in watch mode, return the error code
             if result != 0:
@@ -565,6 +580,106 @@ def skip_created_after_message(
     return f"Skipping {filename}, as it was created {photo.created}, after {target_created_date}."
 
 
+def _extract_manifest_metadata(photo: PhotoAsset, version: AssetVersion) -> Dict[str, Any]:
+    """Extract all metadata fields from a PhotoAsset for manifest.upsert()."""
+    import json as _json  # noqa: I001
+
+    from icloudpd.xmp_sidecar import build_metadata
+
+    fields = photo._asset_record.get("fields", {})
+
+    # Status flags
+    is_favorite = int(fields.get("isFavorite", {}).get("value", 0))
+    is_hidden = int(fields.get("isHidden", {}).get("value", 0))
+    is_deleted = int(fields.get("isDeleted", {}).get("value", 0))
+
+    # Dates
+    asset_date_ms = fields.get("assetDate", {}).get("value")
+    asset_date = None
+    if asset_date_ms is not None:
+        with contextlib.suppress(ValueError, OSError):
+            asset_date = datetime.datetime.fromtimestamp(
+                int(asset_date_ms) / 1000, tz=datetime.timezone.utc
+            ).isoformat()
+
+    added_date_ms = fields.get("addedDate", {}).get("value")
+    added_date = None
+    if added_date_ms is not None:
+        with contextlib.suppress(ValueError, OSError):
+            added_date = datetime.datetime.fromtimestamp(
+                int(added_date_ms) / 1000, tz=datetime.timezone.utc
+            ).isoformat()
+
+    # Dimensions
+    original_width = None
+    original_height = None
+    try:
+        master_fields = photo._master_record.get("fields", {})
+        original_width = int(master_fields["resOriginalWidth"]["value"])
+        original_height = int(master_fields["resOriginalHeight"]["value"])
+    except (KeyError, TypeError, ValueError):
+        pass
+
+    # Duration (video)
+    duration = None
+    duration_val = fields.get("duration", {}).get("value")
+    if duration_val is not None:
+        with contextlib.suppress(ValueError, TypeError):
+            duration = int(duration_val)
+
+    # Item type
+    item_type = None
+    try:
+        item_type_val = photo._master_record.get("fields", {}).get("itemType", {}).get("value")
+        if item_type_val:
+            item_type = str(item_type_val)
+    except (KeyError, TypeError):
+        pass
+
+    # Filename
+    filename = None
+    with contextlib.suppress(KeyError, TypeError, AttributeError):
+        filename = photo.filename
+
+    # Content metadata — reuse XMP's build_metadata for decoded values
+    _xmp_logger = logging.getLogger("icloudpd.manifest.xmp")
+    try:
+        xmp = build_metadata(_xmp_logger, photo._asset_record)
+        title = xmp.Title
+        description = xmp.Description
+        keywords = _json.dumps(xmp.Keywords) if xmp.Keywords else None
+        gps_latitude = xmp.GPSLatitude
+        gps_longitude = xmp.GPSLongitude
+        gps_altitude = xmp.GPSAltitude
+        orientation = xmp.Orientation
+    except Exception:
+        title = description = keywords = None
+        gps_latitude = gps_longitude = gps_altitude = None
+        orientation = None
+
+    return {
+        "version_checksum": version.checksum,
+        "change_tag": photo._asset_record.get("recordChangeTag"),
+        "item_type": item_type,
+        "filename": filename,
+        "asset_date": asset_date,
+        "added_date": added_date,
+        "is_favorite": is_favorite,
+        "is_hidden": is_hidden,
+        "is_deleted": is_deleted,
+        "original_width": original_width,
+        "original_height": original_height,
+        "duration": duration,
+        "orientation": orientation,
+        "title": title,
+        "description": description,
+        "keywords": keywords,
+        "gps_latitude": gps_latitude,
+        "gps_longitude": gps_longitude,
+        "gps_altitude": gps_altitude,
+    }
+
+
 def download_builder(
     logger: logging.Logger,
     folder_structure: str,
@@ -582,6 +697,7 @@ def download_builder(
     filename_builder: Callable[[PhotoAsset], str],
     raw_policy: RawTreatmentPolicy,
     dir_cache: DirCache,
+    manifest: "ManifestDB | None",
     icloud: PyiCloudService,
     counter: Counter,
     photo: PhotoAsset,
@@ -675,14 +791,61 @@ def download_builder(
             original_download_path = add_suffix_to_filename("-original", download_path)
             file_exists = dir_cache.isfile(original_download_path)
 
+        # Compute relative path for manifest — use the actual file path on disk
+        actual_path = original_download_path if original_download_path and file_exists else download_path
+        rel_path = os.path.relpath(actual_path, directory) if manifest else ""
+
         if file_exists:
-            if file_match_policy == FileMatchPolicy.NAME_SIZE_DEDUP_WITH_SUFFIX:
-                # for later: this crashes if download-size medium is specified
+            if manifest is not None:
+                # Identity-based matching: check manifest for this asset
+                manifest_row = manifest.lookup(photo.id, manifest.zone_id, rel_path)
+                if manifest_row is not None:
+                    # Asset tracked in manifest — compare version_size to detect genuine new versions
+                    if manifest_row.version_size != version.size:
+                        # iCloud has a different version — re-download to the canonical path
+                        file_exists = False
+                        rel_path = os.path.relpath(download_path, directory)
+                        logger.debug(
+                            "%s version changed (manifest: %d, iCloud: %d), re-downloading",
+                            truncate_middle(download_path, 96),
+                            manifest_row.version_size,
+                            version.size,
+                        )
+                    else:
+                        # Version matches — update metadata if needed
+                        meta = _extract_manifest_metadata(photo, version)
+                        manifest.upsert(
+                            asset_id=photo.id,
+                            zone_id=manifest.zone_id,
+                            local_path=rel_path,
+                            version_size=version.size,
+                            **meta,
+                        )
+                else:
+                    # File exists on disk but not in manifest — adopt it
+                    meta = _extract_manifest_metadata(photo, version)
+                    manifest.upsert(
+                        asset_id=photo.id,
+                        zone_id=manifest.zone_id,
+                        local_path=rel_path,
+                        version_size=version.size,
+                        **meta,
+                    )
+                    logger.debug(
+                        "%s adopted into manifest",
+                        truncate_middle(download_path, 96),
+                    )
+            elif file_match_policy == FileMatchPolicy.NAME_SIZE_DEDUP_WITH_SUFFIX:
+                # Legacy size-based dedup (no manifest available)
                 file_size = dir_cache.stat_size(original_download_path or download_path)
                 photo_size = version.size
                 if file_size != photo_size:
-                    download_path = (f"-{photo_size}.").join(download_path.rsplit(".", 1))
-                    logger.debug("%s deduplicated", truncate_middle(download_path, 96))
+                    download_path = (f"-{photo_size}.").join(
+                        download_path.rsplit(".", 1)
+                    )
+                    logger.debug(
+                        "%s deduplicated", truncate_middle(download_path, 96)
+                    )
                     file_exists = dir_cache.isfile(download_path)
             if file_exists:
                 counter.increment()
@@ -732,6 +895,15 @@ def download_builder(
                         download.set_utime(download_path, created_date)
                         with contextlib.suppress(OSError):
                             dir_cache.notify_new_file(download_path, os.stat(download_path).st_size)
+                        if manifest is not None:
+                            meta = _extract_manifest_metadata(photo, version)
+                            manifest.upsert(
+                                asset_id=photo.id,
+                                zone_id=manifest.zone_id,
+                                local_path=rel_path,
+                                version_size=version.size,
+                                **meta,
+                            )
                     logger.info("Downloaded %s", truncated_path)
 
         if xmp_sidecar:
@@ -760,29 +932,63 @@ def download_builder(
             else:
                 pass
             lp_download_path = os.path.join(download_dir, lp_filename)
+            lp_rel_path = os.path.relpath(lp_download_path, directory)
 
             lp_file_exists = dir_cache.isfile(lp_download_path)
 
             if only_print_filenames:
+                if lp_file_exists and manifest is not None:
+                    # Check if version changed — need to print the filename for re-download
+                    lp_manifest_row = manifest.lookup(photo.id, manifest.zone_id, lp_rel_path)
+                    if lp_manifest_row is not None and lp_manifest_row.version_size != version.size:
+                        lp_file_exists = False
                 if not lp_file_exists:
                     print(lp_download_path)
                 # Handle deduplication case for only_print_filenames
-                if (
-                    lp_file_exists
-                    and file_match_policy == FileMatchPolicy.NAME_SIZE_DEDUP_WITH_SUFFIX
-                ):
-                    lp_file_size = dir_cache.stat_size(lp_download_path)
-                    lp_photo_size = version.size
-                    if lp_file_size != lp_photo_size:
-                        lp_download_path = (f"-{lp_photo_size}.").join(
-                            lp_download_path.rsplit(".", 1)
-                        )
-                        logger.debug("%s deduplicated", truncate_middle(lp_download_path, 96))
-                        # Print the deduplicated filename but don't download
-                        print(lp_download_path)
+                if lp_file_exists and manifest is None and file_match_policy == FileMatchPolicy.NAME_SIZE_DEDUP_WITH_SUFFIX:
+                        lp_file_size = dir_cache.stat_size(lp_download_path)
+                        lp_photo_size = version.size
+                        if lp_file_size != lp_photo_size:
+                            lp_download_path = (f"-{lp_photo_size}.").join(
+                                lp_download_path.rsplit(".", 1)
+                            )
+                            logger.debug("%s deduplicated", truncate_middle(lp_download_path, 96))
+                            # Print the deduplicated filename but don't download
+                            print(lp_download_path)
             else:
                 if lp_file_exists:
-                    if file_match_policy == FileMatchPolicy.NAME_SIZE_DEDUP_WITH_SUFFIX:
+                    if manifest is not None:
+                        lp_manifest_row = manifest.lookup(photo.id, manifest.zone_id, lp_rel_path)
+                        if lp_manifest_row is not None:
+                            if lp_manifest_row.version_size != version.size:
+                                logger.debug(
+                                    "%s version changed (manifest: %d, iCloud: %d), re-downloading",
+                                    truncate_middle(lp_download_path, 96),
+                                    lp_manifest_row.version_size,
+                                    version.size,
+                                )
+                                lp_file_exists = False
+                            else:
+                                # Version matches — update metadata
+                                meta = _extract_manifest_metadata(photo, version)
+                                manifest.upsert(
+                                    asset_id=photo.id,
+                                    zone_id=manifest.zone_id,
+                                    local_path=lp_rel_path,
+                                    version_size=version.size,
+                                    **meta,
+                                )
+                        else:
+                            # Adopt existing file into manifest
+                            meta = _extract_manifest_metadata(photo, version)
+                            manifest.upsert(
+                                asset_id=photo.id,
+                                zone_id=manifest.zone_id,
+                                local_path=lp_rel_path,
+                                version_size=version.size,
+                                **meta,
+                            )
+                    elif file_match_policy == FileMatchPolicy.NAME_SIZE_DEDUP_WITH_SUFFIX:
                         lp_file_size = dir_cache.stat_size(lp_download_path)
                         lp_photo_size = version.size
                         if lp_file_size != lp_photo_size:
@@ -811,6 +1017,15 @@ def download_builder(
                         if not dry_run:
                             with contextlib.suppress(OSError):
                                 dir_cache.notify_new_file(lp_download_path, os.stat(lp_download_path).st_size)
+                            if manifest is not None:
+                                meta = _extract_manifest_metadata(photo, version)
+                                manifest.upsert(
+                                    asset_id=photo.id,
+                                    zone_id=manifest.zone_id,
+                                    local_path=lp_rel_path,
+                                    version_size=version.size,
+                                    **meta,
+                                )
                         logger.info("Downloaded %s", truncated_path)
     return success
 
@@ -894,6 +1109,7 @@ def core_single_run(
     downloader: Callable[[PyiCloudService, Counter, PhotoAsset], bool],
     notificator: Callable[[], None],
     lp_filename_generator: Callable[[str], str],
+    manifest: ManifestDB | None = None,
 ) -> int:
     """Download all iCloud photos to a local directory for a single execution (no watch loop)"""
 
@@ -956,6 +1172,10 @@ def core_single_run(
                         return 1
                 else:
                     library_object = icloud.photos
+
+                # Set manifest zone_id for this library
+                if manifest is not None:
+                    manifest.zone_id = library_object.zone_id.get("zoneName", "PrimarySync")
 
                 if user_config.list_albums:
                     print("Albums:")
@@ -1182,6 +1402,9 @@ def core_single_run(
                             logger.info(message)
                             status_exchange.get_progress().photos_last_message = message
                         status_exchange.get_progress().reset()
+                        # Flush manifest writes after each album
+                        if manifest is not None:
+                            manifest.flush()
 
                     if user_config.auto_delete:
                         autodelete_photos(
@@ -1193,6 +1416,7 @@ def core_single_run(
                             user_config.sizes,
                             lp_filename_generator,
                             user_config.align_raw,
+                            manifest=manifest,
                         )
                     else:
                         pass
