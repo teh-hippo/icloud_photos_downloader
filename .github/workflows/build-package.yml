@@ -699,7 +699,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Download artifacts
@@ -2441,7 +2441,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         if: steps.get_image.outputs.digest != '' 
@@ -2492,7 +2492,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -2678,7 +2678,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         if: steps.get_image.outputs.digest != '' 
@@ -2729,7 +2729,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -2886,7 +2886,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         if: steps.get_image.outputs.digest != '' 
@@ -2937,7 +2937,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -3101,7 +3101,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         if: steps.get_image.outputs.digest != '' 
@@ -3152,7 +3152,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -3365,7 +3365,7 @@ jobs:
       - name: Setup Node for Registry Server
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         run: |
@@ -3409,7 +3409,7 @@ jobs:
       - name: Setup Node for Test
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -3494,7 +3494,7 @@ jobs:
       - name: Setup Node for Registry Server
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         run: |
@@ -3538,7 +3538,7 @@ jobs:
       - name: Setup Node for Test
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -3615,7 +3615,7 @@ jobs:
       - name: Setup Node for Registry Server
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         run: |
@@ -3655,7 +3655,7 @@ jobs:
       - name: Setup Node for Test
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -3713,7 +3713,7 @@ jobs:
       - name: Setup Node for Registry Server
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         run: |
@@ -3753,7 +3753,7 @@ jobs:
       - name: Setup Node for Test
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
