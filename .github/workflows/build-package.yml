@@ -11,7 +11,7 @@ on:
 jobs:
 
   build_src:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash
@@ -49,7 +49,7 @@ jobs:
           dist/icloudpd*.whl
 
   get_version_thumbprint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash
@@ -90,7 +90,7 @@ jobs:
           dist/icloudpd-version-thumbprint.txt
           
   get_expected_version_linux_apt:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash
@@ -129,7 +129,7 @@ jobs:
       expected_version: ${{steps.get_version.outputs.expected_version}}
 
   get_expected_version_linux_apk:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash
@@ -299,7 +299,7 @@ jobs:
           dist/icloud*
   
   clone_src_whl:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - build_src
     defaults:
@@ -339,7 +339,7 @@ jobs:
           dist/icloudpd-0.0.1234567890-*.whl
 
   clone_linux_whl:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - build_linux_apt
       - build_linux_apk
@@ -381,7 +381,7 @@ jobs:
           dist/icloudpd-0.0.1234567890-*.whl
         
   clone_macos_whl:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - build_macos
     defaults:
@@ -422,7 +422,7 @@ jobs:
           dist/icloudpd-0.0.1234567890-*.whl
   
   clone_windows_whl:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - build_windows
     defaults:
@@ -639,7 +639,7 @@ jobs:
           dist/icloud*
 
   build_docker:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: 
       # - build_linux_apt
       - build_linux_apk # docker is musl only
@@ -686,7 +686,7 @@ jobs:
           dist/icloud*.tar
 
   build_npm:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: 
       - build_linux_apt
       # - build_linux_apk npm is glibc only
@@ -2657,7 +2657,7 @@ jobs:
             "arm/v7",  # platform spec 
             "arm32v7/",  # image prefix 
           ] 
-    runs-on: ubuntu-22.04 
+    runs-on: ubuntu-24.04 
     needs: [ build_npm ] 
     defaults: 
       run: 
@@ -2869,7 +2869,7 @@ jobs:
           #   "arm/v7",  # platform spec 
           #   "arm32v7/",  # image prefix 
           # ] 
-    runs-on: ubuntu-22.04 
+    runs-on: ubuntu-24.04 
     needs: [ build_npm ] 
     defaults: 
       run: 
@@ -3084,7 +3084,7 @@ jobs:
           #   "arm/v7",  # platform spec 
           #   "arm32v7/",  # image prefix 
           # ] 
-    runs-on: ubuntu-22.04 
+    runs-on: ubuntu-24.04 
     needs: [ build_npm ] 
     defaults: 
       run: 
@@ -3299,7 +3299,7 @@ jobs:
             "arm/v7",  # platform spec 
             "arm32v7/",  # image prefix 
           ] 
-    runs-on: ubuntu-22.04 
+    runs-on: ubuntu-24.04 
     defaults: 
       run: 
         shell: bash 
@@ -3794,7 +3794,7 @@ jobs:
   compatibility_report:
     name: "Build Compatibility Report"
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: 
       - compatibility_macos_pip
       - compatibility_windows_pip
