@@ -172,7 +172,7 @@ jobs:
 
 
   get_expected_version_macos:
-    runs-on: macos-14
+    runs-on: macos-15
     defaults:
       run:
         shell: bash
@@ -548,7 +548,7 @@ jobs:
   
   build_macos:
     # earliest possible mac for better compatibility
-    runs-on: macos-13
+    runs-on: macos-15
     defaults:
       run:
         shell: bash
