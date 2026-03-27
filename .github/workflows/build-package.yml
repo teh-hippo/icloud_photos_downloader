@@ -240,7 +240,7 @@ jobs:
 
     # ARM32v7 runs natively on ARM64 runners - no QEMU needed
 
-    - uses: docker/setup-buildx-action@v3
+    - uses: docker/setup-buildx-action@v4
       id: setup
 
     - name: Cache Build
@@ -494,7 +494,7 @@ jobs:
 
     # ARM32v7 runs natively on ARM64 runners - no QEMU needed
 
-    - uses: docker/setup-buildx-action@v3
+    - uses: docker/setup-buildx-action@v4
       id: setup
     
     - name: Cache Folders Build
@@ -659,7 +659,7 @@ jobs:
       uses: docker/setup-qemu-action@v3
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
       with:
         version: v0.12.0
 
