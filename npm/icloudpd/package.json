@@ -31,6 +31,6 @@
     "@icloudpd/linux-x64": "0.0.1",
     "@icloudpd/win32-x64": "0.0.1",
     "@icloudpd/darwin-x64": "0.0.1",
-    "@icloudpd/darwin-arm64": "0.0.1"
+    "@icloudpd/darwin-arm64": "1.32.2"
   }
 }
