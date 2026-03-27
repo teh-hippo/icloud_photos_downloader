@@ -17,7 +17,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download version info
       uses: actions/download-artifact@v4
@@ -55,7 +55,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download version info
       uses: actions/download-artifact@v4
@@ -96,7 +96,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download version info
       uses: actions/download-artifact@v4
@@ -135,7 +135,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download version info
       uses: actions/download-artifact@v4
@@ -178,7 +178,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download version info
       uses: actions/download-artifact@v4
@@ -229,7 +229,7 @@ jobs:
             "arm32v7",
           ]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download version info
       uses: actions/download-artifact@v4
@@ -307,7 +307,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download src
       uses: actions/download-artifact@v4
@@ -348,7 +348,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download bin
       uses: actions/download-artifact@v4
@@ -389,7 +389,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download bin
       uses: actions/download-artifact@v4
@@ -430,7 +430,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download bin
       uses: actions/download-artifact@v4
@@ -483,7 +483,7 @@ jobs:
             "arm32v7",
           ]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download version info
       uses: actions/download-artifact@v4
@@ -554,7 +554,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download version info
       uses: actions/download-artifact@v4
@@ -600,7 +600,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download version info
       uses: actions/download-artifact@v4
@@ -645,7 +645,7 @@ jobs:
       - build_linux_apk # docker is musl only
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download artifacts
       uses: actions/download-artifact@v4
@@ -694,7 +694,7 @@ jobs:
       - build_windows
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -2672,7 +2672,7 @@ jobs:
 
       - name: Checkout code
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node for Registry Server
         if: steps.get_image.outputs.digest != '' 
@@ -3827,7 +3827,7 @@ jobs:
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
