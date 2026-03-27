@@ -274,7 +274,7 @@ jobs:
           }
 
     - name: Build
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         push: false
         platforms: ${{ matrix.platform[0] }}
@@ -522,7 +522,7 @@ jobs:
           }
               
     - name: Build
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         push: false
         platforms: ${{ matrix.platform[0] }}
@@ -664,7 +664,7 @@ jobs:
         version: v0.12.0
 
     - name: Build Release Docker
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: ./Dockerfile
