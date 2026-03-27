@@ -48,7 +48,7 @@ jobs:
             (skopeo copy --preserve-digests --src-creds=${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_PASSWORD }} --dest-creds=${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_PASSWORD }} --all docker://docker.io/icloudpd/icloudpd:${{inputs.icloudpd_version}} docker://docker.io/icloudpd/icloudpd:latest)
   
       - name: Update repo description
-        uses: peter-evans/dockerhub-description@v3
+        uses: peter-evans/dockerhub-description@v5
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
