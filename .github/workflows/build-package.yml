@@ -594,7 +594,7 @@ jobs:
 
   build_windows:
     # earliest possible win for better compatibility
-    runs-on: windows-2022
+    runs-on: windows-2025
     defaults:
       run:
         shell: bash
