@@ -44,7 +44,7 @@ dependencies = [
 doc = [
     "furo==2024.8.6",
     "Sphinx==7.4.7",
-    "sphinx-autobuild==2024.10.3",
+    "sphinx-autobuild==2025.8.25",
     "myst-parser==3.0.1"
 ]
 dev = [
