@@ -14,7 +14,7 @@ on:
 jobs:
   skip_check:
     # continue-on-error: true # Uncomment once integration is finished
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     # Map a step output to a job output
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
@@ -30,14 +30,14 @@ jobs:
   lint:
     needs: skip_check
     if: needs.skip_check.outputs.should_skip != 'true'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12', '3.13']
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install Test dependencies
@@ -52,14 +52,14 @@ jobs:
   type_check: 
     needs: skip_check
     if: needs.skip_check.outputs.should_skip != 'true'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy: 
       matrix: 
         python-version: ['3.10', '3.11', '3.12', '3.13']
     steps: 
-    - uses: actions/checkout@v4 
+    - uses: actions/checkout@v6 
     - name: Set up Python ${{ matrix.python-version }} 
-      uses: actions/setup-python@v5 
+      uses: actions/setup-python@v6 
       with: 
         python-version: ${{ matrix.python-version }} 
         cache: 'pip' 
@@ -79,7 +79,7 @@ jobs:
   test: 
     needs: [skip_check, patch_version]
     if: needs.skip_check.outputs.should_skip != 'true'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy: 
       matrix: 
         python-version: ['3.10', '3.11', '3.12', '3.13']
@@ -88,17 +88,17 @@ jobs:
       run: | 
         sudo apt-get update && sudo apt-get -y install locales locales-all
 
-    - uses: actions/checkout@v4 
+    - uses: actions/checkout@v6 
 
     - name: Download version info
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: icloudpd-version-info
         path: |
           src/foundation
 
     - name: Set up Python ${{ matrix.python-version }} 
-      uses: actions/setup-python@v5 
+      uses: actions/setup-python@v6 
       with: 
         python-version: ${{ matrix.python-version }} 
         cache: 'pip' 
@@ -124,23 +124,23 @@ jobs:
       matrix: 
         python-version: [3.13]
         os: 
-          - "macos-13"
+          - "macos-15"
           - "macos-14"
           - "windows-2025"
-          - "windows-2022"
+          - "windows-2025"
     steps: 
 
-    - uses: actions/checkout@v4 
+    - uses: actions/checkout@v6 
 
     - name: Download version info
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: icloudpd-version-info
         path: |
           src/foundation
 
     - name: Set up Python ${{ matrix.python-version }} 
-      uses: actions/setup-python@v5 
+      uses: actions/setup-python@v6 
       with: 
         python-version: ${{ matrix.python-version }} 
         cache: 'pip' 
@@ -157,9 +157,9 @@ jobs:
   get_version:
     needs: skip_check
     if: needs.skip_check.outputs.should_skip != 'true'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Retrieve version
       id: get_version
