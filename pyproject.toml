@@ -58,7 +58,7 @@ devlinux = [
     "scons==4.9.1"
 ]
 test = [
-    "pytest==8.4.2",
+    "pytest==9.0.2",
     "mock==5.2.0",
     "freezegun==1.5.5",
     "vcrpy==7.0.0",
