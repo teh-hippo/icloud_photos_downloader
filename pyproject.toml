@@ -43,7 +43,7 @@ dependencies = [
 [dependency-groups]
 doc = [
     "furo==2024.8.6",
-    "Sphinx==7.4.7",
+    "Sphinx==9.1.0",
     "sphinx-autobuild==2024.10.3",
     "myst-parser==3.0.1"
 ]
