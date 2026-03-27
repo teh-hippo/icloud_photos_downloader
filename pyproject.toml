@@ -45,7 +45,7 @@ doc = [
     "furo==2024.8.6",
     "Sphinx==7.4.7",
     "sphinx-autobuild==2024.10.3",
-    "myst-parser==3.0.1"
+    "myst-parser==5.0.0"
 ]
 dev = [
     "twine==6.1.0",
