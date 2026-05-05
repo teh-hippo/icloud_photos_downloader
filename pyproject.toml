@@ -35,6 +35,8 @@ dependencies = [
     "tzlocal==5.3.1",
     "pytz==2026.1.post1",
     "certifi==2026.2.25",
+    # Alpine arm/v7 builds cryptography from source; 47.x needs newer Cargo lock parsing.
+    "cryptography>=46,<47",
     "keyring==25.7.0",
     "keyrings-alt==5.0.2",
     "srp==1.0.22",
