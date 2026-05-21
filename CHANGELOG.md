@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- fix: refuse `--delete-orphaned` combined with `--recent` or `--until-found` to prevent spurious mass deletion of files outside the iteration window
+
 ## 1.32.2 (2025-09-01)
 
 - fix: HTTP response content not captured for authentication and non-streaming requests [#1240](https://github.com/icloud-photos-downloader/icloud_photos_downloader/issues/1240)

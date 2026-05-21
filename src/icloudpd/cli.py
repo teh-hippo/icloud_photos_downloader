@@ -698,6 +698,28 @@ def cli() -> int:
             )
             return 2
 
+        elif [
+            user_ns
+            for user_ns in user_nses
+            if user_ns.recent is not None and user_ns.delete_orphaned
+        ]:
+            print(
+                "--recent and --delete-orphaned are mutually exclusive per configuration"
+                " (would falsely orphan everything outside the recent window)"
+            )
+            return 2
+
+        elif [
+            user_ns
+            for user_ns in user_nses
+            if user_ns.until_found is not None and user_ns.delete_orphaned
+        ]:
+            print(
+                "--until-found and --delete-orphaned are mutually exclusive per configuration"
+                " (would falsely orphan everything past the until-found cutoff)"
+            )
+            return 2
+
         elif global_ns.watch_with_interval and (
             [
                 user_ns

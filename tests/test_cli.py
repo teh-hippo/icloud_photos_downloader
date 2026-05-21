@@ -560,3 +560,41 @@ class CliTestCase(TestCase):
         self.assertEqual(result.exit_code, 2, "exit code")
 
         self.assertFalse(os.path.exists(base_dir), f"{base_dir} exists")
+
+    def test_conflict_options_recent_and_delete_orphaned(self) -> None:
+        base_dir = os.path.join(self.fixtures_path, inspect.stack()[0][3])
+        result = run_main(
+            [
+                "--username",
+                "jdoe@gmail.com",
+                "--password",
+                "password1",
+                "-d",
+                "/tmp",
+                "--recent",
+                "0",
+                "--delete-orphaned",
+            ],
+        )
+        self.assertEqual(result.exit_code, 2, "exit code")
+
+        self.assertFalse(os.path.exists(base_dir), f"{base_dir} exists")
+
+    def test_conflict_options_until_found_and_delete_orphaned(self) -> None:
+        base_dir = os.path.join(self.fixtures_path, inspect.stack()[0][3])
+        result = run_main(
+            [
+                "--username",
+                "jdoe@gmail.com",
+                "--password",
+                "password1",
+                "-d",
+                "/tmp",
+                "--until-found",
+                "0",
+                "--delete-orphaned",
+            ],
+        )
+        self.assertEqual(result.exit_code, 2, "exit code")
+
+        self.assertFalse(os.path.exists(base_dir), f"{base_dir} exists")
