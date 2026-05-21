@@ -354,6 +354,7 @@ class DownloadPhotoNameIDTestCase(TestCase):
                             if (f[2] == "photo" and f[1].endswith(".MOV"))
                             else AssetVersionSize.ORIGINAL,
                             ANY,  # filename_builder
+                            ANY,  # raw_policy
                         ),
                         files_to_download_ext,
                     )

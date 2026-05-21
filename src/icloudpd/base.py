@@ -957,6 +957,11 @@ def download_builder(
     success = False
 
     for download_size in primary_sizes:
+        # Reset per-iteration state. download_result must be local to this
+        # iteration so a previous size's success doesn't leak into the
+        # file_present gate below.
+        download_result = False
+
         if download_size not in versions and download_size != AssetVersionSize.ORIGINAL:
             if force_size:
                 error_filename = filename_builder(photo)
@@ -1118,6 +1123,7 @@ def download_builder(
                     version,
                     download_size,
                     filename_builder,
+                    raw_policy,
                 )
                 success = download_result
 
@@ -1157,10 +1163,22 @@ def download_builder(
                             )
                     logger.info("Downloaded %s", truncated_path)
 
-        if write_metadata_xmp:
-                        generate_xmp_file(logger, download_path, photo._asset_record, dry_run, dir_cache)
+        # Only write metadata when there is actually a file on disk to
+        # write to: either it was already on disk before this run, or we
+        # just downloaded it successfully. Skipping the write when the
+        # download failed avoids spurious "File not found" warnings from
+        # exiftool running against a missing path.
+        file_present = file_exists or download_result
 
-        if write_metadata_exif and os.path.splitext(download_path.lower())[1] not in (".mov", ".mp4", ".m4v", ".avi"):
+        if file_present and write_metadata_xmp:
+            generate_xmp_file(logger, download_path, photo._asset_record, dry_run, dir_cache)
+
+        if (
+            file_present
+            and write_metadata_exif
+            and os.path.splitext(download_path.lower())[1]
+            not in (".mov", ".mp4", ".m4v", ".avi")
+        ):
             # Skip in-file metadata for videos — XMP sidecar is the canonical source.
             # QuickTime Keys metadata is redundant when the sidecar exists.
             _write_exif_with_mtime_check(
@@ -1308,6 +1326,7 @@ def download_builder(
                         version,
                         lp_size,
                         filename_builder,
+                        raw_policy,
                     )
                     success = download_result and success
                     if download_result:

@@ -3,6 +3,8 @@
 ## Unreleased
 
 - fix: refuse `--delete-orphaned` combined with `--recent` or `--until-found` to prevent spurious mass deletion of files outside the iteration window
+- fix: refresh expired CloudKit download URLs by re-issuing `records/lookup` before failing the download, instead of permanently 410-failing items on the back half of slow batches
+- fix: skip metadata writes when the download failed, removing spurious "File not found" warnings caused by exiftool running against a missing file
 
 ## 1.32.2 (2025-09-01)
 

@@ -4,7 +4,7 @@ import logging
 import os
 import shutil
 import sys
-from typing import Any, List, NoReturn, Sequence, Tuple
+from typing import Any, Dict, List, NoReturn, Sequence, Tuple
 from unittest import TestCase, mock
 from unittest.mock import ANY, PropertyMock, call
 
@@ -357,6 +357,7 @@ class DownloadPhotoTestCase(TestCase):
                             if (f[2] == "photo" and f[1].endswith(".MOV"))
                             else AssetVersionSize.ORIGINAL,
                             ANY,  # filename_builder
+                            ANY,  # raw_policy
                         ),
                         files_to_download_ext,
                     )
@@ -432,6 +433,178 @@ class DownloadPhotoTestCase(TestCase):
                 result.output,
             )
             assert result.exit_code == 0
+
+    def test_handle_410_recovers_via_url_refresh(self) -> None:
+        """A 410 Gone on first attempt triggers same-URL retry, then refresh,
+        then succeeds on the freshly-issued URL. Verifies the layered retry
+        path (PhotoAsset.refresh is called exactly once)."""
+        base_dir = os.path.join(self.fixtures_path, inspect.stack()[0][3])
+
+        call_count: List[int] = [0]
+        refresh_count: List[int] = [0]
+
+        # On the first SAME_URL_RETRIES + 1 calls (initial + same-URL retries)
+        # raise 410. After that, fall through to the original download so the
+        # actual fixture file is fetched from the cassette.
+        gone_attempts = 1 + constants.SAME_URL_RETRIES  # = 2 with default config
+        orig_download = PhotoAsset.download
+
+        def maybe_raise_410(self: PhotoAsset, session: Any, url: str, start: int = 0) -> Any:
+            call_count[0] += 1
+            if call_count[0] <= gone_attempts:
+                raise PyiCloudAPIResponseException("Gone", "410")
+            return orig_download(self, session, url, start)
+
+        def fake_refresh(self: PhotoAsset) -> None:
+            refresh_count[0] += 1
+            # Don't actually mutate records; the test's mocked download
+            # succeeds on the next call regardless of URL.
+
+        with (
+            mock.patch("time.sleep"),
+            mock.patch.object(  # noqa: SIM117
+                PhotoAsset, "download", new=maybe_raise_410
+            ),
+            mock.patch.object(PhotoAsset, "refresh", new=fake_refresh),
+        ):
+            _, result = run_icloudpd_test(
+                self.assertEqual,
+                self.root_path,
+                base_dir,
+                "listing_photos.yml",
+                [],
+                [("2018/07/31", "IMG_7409.JPG")],
+                [
+                    "--username",
+                    "jdoe@gmail.com",
+                    "--password",
+                    "password1",
+                    "--recent",
+                    "1",
+                    "--skip-videos",
+                    "--skip-live-photos",
+                    "--no-progress-bar",
+                    "--threads-num",
+                    "1",
+                ],
+            )
+
+        self.assertEqual(
+            refresh_count[0],
+            1,
+            "PhotoAsset.refresh should be called exactly once",
+        )
+        # Initial + SAME_URL_RETRIES failed attempts + at least one
+        # successful post-refresh attempt.
+        self.assertGreaterEqual(call_count[0], gone_attempts + 1, "download call count")
+        # The successful path should run; no "Skipping" warning.
+        self.assertNotIn("Skipping", result.output)
+        self.assertEqual(result.exit_code, 0)
+
+    def test_handle_persistent_410_skips_with_warning(self) -> None:
+        """When the CDN keeps returning 410 even after refresh, the file is
+        skipped with a warning rather than retried indefinitely. Subsequent
+        runs will pick it up with a fresh page-fetch."""
+        base_dir = os.path.join(self.fixtures_path, inspect.stack()[0][3])
+
+        refresh_count: List[int] = [0]
+
+        def always_raise_410(_self: Any, _session: Any, _url: Any, _start: Any = 0) -> NoReturn:
+            raise PyiCloudAPIResponseException("Gone", "410")
+
+        def fake_refresh(self: PhotoAsset) -> None:
+            refresh_count[0] += 1
+
+        with (
+            mock.patch("time.sleep"),
+            mock.patch.object(  # noqa: SIM117
+                PhotoAsset, "download", new=always_raise_410
+            ),
+            mock.patch.object(PhotoAsset, "refresh", new=fake_refresh),
+        ):
+            _, result = run_icloudpd_test(
+                self.assertEqual,
+                self.root_path,
+                base_dir,
+                "listing_photos.yml",
+                [],
+                [],
+                [
+                    "--username",
+                    "jdoe@gmail.com",
+                    "--password",
+                    "password1",
+                    "--recent",
+                    "1",
+                    "--skip-videos",
+                    "--skip-live-photos",
+                    "--no-progress-bar",
+                    "--threads-num",
+                    "1",
+                ],
+            )
+
+        self.assertEqual(
+            refresh_count[0],
+            1,
+            "refresh should be tried exactly once before giving up",
+        )
+        self.assertIn(
+            "still returned 410 Gone",
+            result.output,
+            "should log a clear warning explaining why the file was skipped",
+        )
+        self.assertEqual(result.exit_code, 0)
+
+    def test_handle_410_skips_when_refresh_fails(self) -> None:
+        """If records/lookup itself fails (e.g., asset deleted server-side
+        between iteration and refresh), the file is skipped with a clear
+        warning rather than crashing the run."""
+        base_dir = os.path.join(self.fixtures_path, inspect.stack()[0][3])
+
+        from pyicloud_ipd.services.photos import PhotoAssetRefreshError
+
+        def always_raise_410(_self: Any, _session: Any, _url: Any, _start: Any = 0) -> NoReturn:
+            raise PyiCloudAPIResponseException("Gone", "410")
+
+        def fail_refresh(_self: PhotoAsset) -> NoReturn:
+            raise PhotoAssetRefreshError("Asset no longer available")
+
+        with (
+            mock.patch("time.sleep"),
+            mock.patch.object(  # noqa: SIM117
+                PhotoAsset, "download", new=always_raise_410
+            ),
+            mock.patch.object(PhotoAsset, "refresh", new=fail_refresh),
+        ):
+            _, result = run_icloudpd_test(
+                self.assertEqual,
+                self.root_path,
+                base_dir,
+                "listing_photos.yml",
+                [],
+                [],
+                [
+                    "--username",
+                    "jdoe@gmail.com",
+                    "--password",
+                    "password1",
+                    "--recent",
+                    "1",
+                    "--skip-videos",
+                    "--skip-live-photos",
+                    "--no-progress-bar",
+                    "--threads-num",
+                    "1",
+                ],
+            )
+
+        self.assertIn(
+            "refresh failed",
+            result.output,
+            "should log a clear warning when refresh raises",
+        )
+        self.assertEqual(result.exit_code, 0)
 
     def test_handle_session_error_during_download(self) -> None:
         base_dir = os.path.join(self.fixtures_path, inspect.stack()[0][3])
@@ -893,6 +1066,7 @@ class DownloadPhotoTestCase(TestCase):
                         ANY,
                         AssetVersionSize.THUMB,
                         ANY,  # filename_builder
+                        ANY,  # raw_policy
                     )
 
                     assert result.exit_code == 0
@@ -1119,8 +1293,8 @@ class DownloadPhotoTestCase(TestCase):
 
         # Create ALL files that --recent 1 will encounter (only IMG_7409)
         files_to_create = [
-            ("2018/07/31", "IMG_7409.JPG", 1),   # Wrong size — will be adopted
-            ("2018/07/31", "IMG_7409.MOV", 1),    # Wrong size — will be adopted
+            ("2018/07/31", "IMG_7409.JPG", 1),  # Wrong size — will be adopted
+            ("2018/07/31", "IMG_7409.MOV", 1),  # Wrong size — will be adopted
         ]
 
         # Nothing to download — manifest adopts existing files
@@ -2313,8 +2487,12 @@ class DownloadPhotoTestCase(TestCase):
             result.output,
         )
         _lz = get_localzone()
-        _img7407_created = datetime.datetime.fromtimestamp(1532951045108 / 1000.0, tz=pytz.utc).astimezone(_lz)
-        _img7408_created = datetime.datetime.fromtimestamp(1532951050176 / 1000.0, tz=pytz.utc).astimezone(_lz)
+        _img7407_created = datetime.datetime.fromtimestamp(
+            1532951045108 / 1000.0, tz=pytz.utc
+        ).astimezone(_lz)
+        _img7408_created = datetime.datetime.fromtimestamp(
+            1532951050176 / 1000.0, tz=pytz.utc
+        ).astimezone(_lz)
         _threshold = datetime.datetime(2018, 7, 31).astimezone(_lz)
         self.assertIn(
             f"Skipping IMG_7407.JPG, as it was created {_img7407_created}, before {_threshold}.",
@@ -2397,7 +2575,9 @@ class DownloadPhotoTestCase(TestCase):
             )
 
         _lz = get_localzone()
-        _img7409_created = datetime.datetime.fromtimestamp(1533021744816 / 1000.0, tz=pytz.utc).astimezone(_lz)
+        _img7409_created = datetime.datetime.fromtimestamp(
+            1533021744816 / 1000.0, tz=pytz.utc
+        ).astimezone(_lz)
         _threshold = datetime.datetime(2018, 7, 31).astimezone(_lz)
         self.assertIn(
             f"Skipping IMG_7409.JPG, as it was created {_img7409_created}, after {_threshold}.",
@@ -2469,3 +2649,120 @@ class DownloadPhotoTestCase(TestCase):
         photo_size = os.path.getsize(out_path)
 
         self.assertEqual(617 + 1234, photo_size, "photo size")
+
+
+class PhotoAssetRefreshTestCase(TestCase):
+    """Unit tests for PhotoAsset.refresh and PhotoAlbum.lookup_records.
+
+    Covers the records/lookup response shape (CloudKit returns both records
+    interleaved by recordType) and the partial-failure handling required by
+    the 410 refresh path.
+    """
+
+    def _make_records(
+        self, master_id: str, asset_id: str, url: str = "https://example/${f}?o=NEW"
+    ) -> List[Dict[str, Any]]:
+        """Synthesise a minimal CPLMaster + CPLAsset pair like
+        records/query / records/lookup returns."""
+        return [
+            {
+                "recordName": master_id,
+                "recordType": "CPLMaster",
+                "fields": {
+                    "resOriginalRes": {
+                        "value": {
+                            "size": 1024,
+                            "downloadURL": url,
+                            "fileChecksum": "AaiveE+iYdaJIJjMsHN1/UvS8LCT",
+                        }
+                    },
+                    "resOriginalFileType": {"value": "public.heic"},
+                },
+            },
+            {
+                "recordName": asset_id,
+                "recordType": "CPLAsset",
+                "fields": {
+                    "masterRef": {"value": {"recordName": master_id}},
+                },
+            },
+        ]
+
+    def test_refresh_replaces_records_and_invalidates_versions_cache(self) -> None:
+        master_id, asset_id = "MASTER_42", "ASSET_42"
+        old_records = self._make_records(master_id, asset_id, url="https://example/${f}?o=OLD")
+        new_records = self._make_records(master_id, asset_id, url="https://example/${f}?o=NEW")
+
+        photo = PhotoAsset(master_record=old_records[0], asset_record=old_records[1])
+
+        fake_library = mock.Mock(spec=PhotoAlbum)
+        fake_library.lookup_records.return_value = new_records
+        photo._library = fake_library
+
+        # Force the versions cache to be populated so we can verify it gets
+        # invalidated by refresh.
+        photo._versions = {}
+
+        photo.refresh()
+
+        fake_library.lookup_records.assert_called_once_with([master_id, asset_id])
+        self.assertEqual(
+            photo._master_record["fields"]["resOriginalRes"]["value"]["downloadURL"],
+            "https://example/${f}?o=NEW",
+            "master record should be replaced by the fresh lookup result",
+        )
+        self.assertIsNone(
+            photo._versions,
+            "versions cache must be invalidated so .versions recomputes from new records",
+        )
+
+    def test_refresh_raises_when_master_missing_from_lookup(self) -> None:
+        from pyicloud_ipd.services.photos import PhotoAssetRefreshError
+
+        master_id, asset_id = "MASTER_X", "ASSET_X"
+        old_records = self._make_records(master_id, asset_id)
+        photo = PhotoAsset(master_record=old_records[0], asset_record=old_records[1])
+
+        # Lookup returns only the CPLAsset (master not found, e.g., deleted
+        # server-side between iteration and refresh).
+        partial_response = [old_records[1]]
+        fake_library = mock.Mock(spec=PhotoAlbum)
+        fake_library.lookup_records.return_value = partial_response
+        photo._library = fake_library
+
+        with self.assertRaises(PhotoAssetRefreshError):
+            photo.refresh()
+
+    def test_refresh_raises_when_record_has_server_error(self) -> None:
+        from pyicloud_ipd.services.photos import PhotoAssetRefreshError
+
+        master_id, asset_id = "MASTER_Y", "ASSET_Y"
+        old_records = self._make_records(master_id, asset_id)
+        photo = PhotoAsset(master_record=old_records[0], asset_record=old_records[1])
+
+        # CloudKit returns the master with a serverErrorCode (NOT_FOUND) and
+        # the asset cleanly. Partial-success scenarios must still be treated
+        # as a refresh failure so we don't silently keep stale records.
+        master_with_error = dict(old_records[0])
+        master_with_error["serverErrorCode"] = "NOT_FOUND"
+        response = [master_with_error, old_records[1]]
+
+        fake_library = mock.Mock(spec=PhotoAlbum)
+        fake_library.lookup_records.return_value = response
+        photo._library = fake_library
+
+        with self.assertRaises(PhotoAssetRefreshError):
+            photo.refresh()
+
+    def test_refresh_raises_when_no_library_backref(self) -> None:
+        """Asset constructed directly (e.g., from a test fixture) has no
+        back-reference — refresh must fail loudly rather than silently
+        no-op."""
+        from pyicloud_ipd.services.photos import PhotoAssetRefreshError
+
+        records = self._make_records("M", "A")
+        photo = PhotoAsset(master_record=records[0], asset_record=records[1])
+        # photo._library is left as None (default).
+
+        with self.assertRaises(PhotoAssetRefreshError):
+            photo.refresh()
