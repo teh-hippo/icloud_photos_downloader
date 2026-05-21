@@ -20,7 +20,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download version info
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: icloudpd-version-info
         path: |
@@ -41,7 +41,7 @@ jobs:
         scripts/build
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: icloudpd-src
         if-no-files-found: error
@@ -58,7 +58,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download version info
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: icloudpd-version-info
         path: |
@@ -82,7 +82,7 @@ jobs:
         icloudpd --version | tee dist/icloudpd-version-thumbprint.txt
           
     - name: Upload artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: icloudpd-version-thumbprint
         if-no-files-found: error
@@ -99,7 +99,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download version info
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: icloudpd-version-info
         path: |
@@ -138,7 +138,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download version info
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: icloudpd-version-info
         path: |
@@ -195,7 +195,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download version info
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: icloudpd-version-info
         path: |
@@ -254,7 +254,7 @@ jobs:
         mv dist/icloudpd dist/icloudpd-${{inputs.icloudpd_version}}-linux-${{ matrix.platform[1] }}
         
     - name: Upload artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: icloudpd-bin-linux-${{ matrix.platform[1] }}-apt
         if-no-files-found: error
@@ -273,7 +273,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download src
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: icloudpd-src
         path: |
@@ -294,7 +294,7 @@ jobs:
         scripts/clone_whl_version ${{inputs.icloudpd_version}} 0.0.1234567890
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: icloudpd-dummywhl-src
         if-no-files-found: error
@@ -314,7 +314,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download bin
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         pattern: icloudpd-bin-linux-*
         merge-multiple: true
@@ -336,7 +336,7 @@ jobs:
         scripts/clone_whl_version ${{inputs.icloudpd_version}} 0.0.1234567890
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: icloudpd-dummywhl-linux
         if-no-files-found: error
@@ -355,7 +355,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download bin
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         pattern: icloudpd-bin-windows-*
         merge-multiple: true
@@ -377,7 +377,7 @@ jobs:
         scripts/clone_whl_version ${{inputs.icloudpd_version}} 0.0.1234567890
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: icloudpd-dummywhl-windows
         if-no-files-found: error
@@ -408,7 +408,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download version info
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: icloudpd-version-info
         path: |
@@ -461,7 +461,7 @@ jobs:
         mv dist/icloudpd dist/icloudpd-${{inputs.icloudpd_version}}-linux-musl-${{ matrix.platform[1] }}
         
     - name: Upload artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: icloudpd-bin-linux-${{ matrix.platform[1] }}-apk
         if-no-files-found: error
@@ -470,7 +470,7 @@ jobs:
   
   build_windows:
     # earliest possible win for better compatibility
-    runs-on: windows-2022
+    runs-on: windows-2025
     defaults:
       run:
         shell: bash
@@ -479,7 +479,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download version info
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: icloudpd-version-info
         path: |
@@ -507,7 +507,7 @@ jobs:
         scripts/build_binary_dist_windows ${{inputs.icloudpd_version}}
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: icloudpd-bin-windows-amd64
         if-no-files-found: error
@@ -524,7 +524,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download artifacts
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with: 
         pattern: icloudpd-bin-linux-*
         merge-multiple: true
@@ -540,7 +540,7 @@ jobs:
         version: v0.12.0
 
     - name: Build Release Docker
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: ./Dockerfile
@@ -554,7 +554,7 @@ jobs:
         #   icloudpd/icloudpd:commit-${{ github.sha }} 
  
     - name: Upload artifacts 
-      uses: actions/upload-artifact@v5 
+      uses: actions/upload-artifact@v7 
       with: 
         name: icloudpd-oci 
         if-no-files-found: error 
@@ -574,11 +574,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Download artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           pattern: icloudpd-bin-*
           merge-multiple: true
@@ -590,7 +590,7 @@ jobs:
           scripts/build_npm ${{inputs.icloudpd_version}}
 
       - name: Upload artifacts 
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-npm
           if-no-files-found: error 
@@ -712,7 +712,7 @@ jobs:
   
       - name: Download artifacts (src)
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: icloudpd-dummywhl-src
           path: |
@@ -720,7 +720,7 @@ jobs:
 
       - name: Download artifacts (whl)
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: icloudpd-dummywhl-linux
           path: |
@@ -767,7 +767,7 @@ jobs:
 
       - name: Upload compatibility result
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: icloudpd-compatibility-linux-pip-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apt
           if-no-files-found: error
@@ -806,7 +806,7 @@ jobs:
     
       - name: Upload tzlc result
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: icloudpd-tzlc-linux-pip-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apt
           if-no-files-found: error
@@ -918,7 +918,7 @@ jobs:
   
       - name: Download artifacts (src)
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: icloudpd-dummywhl-src
           path: |
@@ -926,7 +926,7 @@ jobs:
 
       - name: Download artifacts (linux)
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: icloudpd-dummywhl-linux
           path: |
@@ -971,7 +971,7 @@ jobs:
 
       - name: Upload compatibility result
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: icloudpd-compatibility-linux-pip-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apk
           if-no-files-found: error
@@ -1009,7 +1009,7 @@ jobs:
 
       - name: Upload tzlc result
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: icloudpd-tzlc-linux-pip-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apk
           if-no-files-found: error
@@ -1034,14 +1034,14 @@ jobs:
           mkdir compatibility
 
       - name: Download artifacts (src)
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: icloudpd-dummywhl-src
           path: |
             dist
 
       - name: Download artifacts (windows)
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: icloudpd-dummywhl-windows
           path: |
@@ -1068,7 +1068,7 @@ jobs:
           touch compatibility/pip.${{ matrix.os }}.amd64.fail
 
       - name: Upload compatibility result
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: icloudpd-compatibility-windows-pip-${{ matrix.os }}-amd64
           if-no-files-found: error
@@ -1180,7 +1180,7 @@ jobs:
    
       - name: Download artifacts
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@v8 
         with: 
           pattern: icloudpd-bin-linux-*
           merge-multiple: true
@@ -1221,7 +1221,7 @@ jobs:
  
       - name: Upload compatibility result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-linux-bin-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apt
           if-no-files-found: error 
@@ -1256,7 +1256,7 @@ jobs:
   
       - name: Upload tzlc result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-tzlc-linux-bin-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apt
           if-no-files-found: error 
@@ -1368,7 +1368,7 @@ jobs:
    
       - name: Download artifacts
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@v8 
         with: 
           pattern: icloudpd-bin-linux-*
           merge-multiple: true
@@ -1409,7 +1409,7 @@ jobs:
  
       - name: Upload compatibility result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-linux-bin-musl-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apt
           if-no-files-found: error 
@@ -1444,7 +1444,7 @@ jobs:
   
       - name: Upload tzlc result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-tzlc-linux-bin-musl-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apt
           if-no-files-found: error 
@@ -1553,7 +1553,7 @@ jobs:
     
       - name: Download artifacts
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@v8 
         with: 
           pattern: icloudpd-bin-linux-*
           merge-multiple: true
@@ -1594,7 +1594,7 @@ jobs:
   
       - name: Upload compatibility result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-linux-bin-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apk
           if-no-files-found: error 
@@ -1630,7 +1630,7 @@ jobs:
   
       - name: Upload tzlc result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-tzlc-linux-bin-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apk
           if-no-files-found: error 
@@ -1739,7 +1739,7 @@ jobs:
     
       - name: Download artifacts
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@v8 
         with: 
           pattern: icloudpd-bin-linux-*
           merge-multiple: true
@@ -1780,7 +1780,7 @@ jobs:
   
       - name: Upload compatibility result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-linux-bin-musl-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apk
           if-no-files-found: error 
@@ -1816,7 +1816,7 @@ jobs:
   
       - name: Upload tzlc result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-tzlc-linux-bin-musl-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apk
           if-no-files-found: error 
@@ -1848,7 +1848,7 @@ jobs:
           mkdir compatibility 
  
       - name: Download artifacts 
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@v8 
         with: 
           name: icloudpd-bin-windows-amd64 
           path: | 
@@ -1871,7 +1871,7 @@ jobs:
           touch compatibility/bin.${{ matrix.prop[0] }}.amd64.fail 
  
       - name: Upload compatibility result 
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-windows-bin-${{ matrix.prop[0] }}-amd64
           if-no-files-found: error 
@@ -1942,7 +1942,7 @@ jobs:
  
       - name: Download artifacts 
         if: steps.reload_docker.outcome != 'failure'
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@v8 
         with: 
           name: icloudpd-oci
           path: | 
@@ -1995,7 +1995,7 @@ jobs:
  
       - name: Upload compatibility result 
         if: steps.reload_docker.outcome != 'failure'
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-docker-${{ matrix.image[0] }}-${{ matrix.prop[0] }}
           if-no-files-found: error 
@@ -2022,7 +2022,7 @@ jobs:
   
       - name: Upload tzlc result 
         if: steps.reload_docker.outcome != 'failure'
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-tzlc-docker-${{ matrix.image[0] }}-${{ matrix.prop[0] }}
           if-no-files-found: error 
@@ -2129,7 +2129,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         if: steps.get_image.outputs.digest != '' 
@@ -2170,7 +2170,7 @@ jobs:
    
       - name: Download artifacts
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@v8 
         with: 
           name: icloudpd-npm
           path: | 
@@ -2180,7 +2180,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -2224,7 +2224,7 @@ jobs:
  
       - name: Upload compatibility result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-linux-npm-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apt
           if-no-files-found: error 
@@ -2256,7 +2256,7 @@ jobs:
   
       - name: Upload tzlc result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-tzlc-linux-npm-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apt
           if-no-files-found: error 
@@ -2366,7 +2366,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         if: steps.get_image.outputs.digest != '' 
@@ -2407,7 +2407,7 @@ jobs:
    
       - name: Download artifacts
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@v8 
         with: 
           name: icloudpd-npm
           path: | 
@@ -2417,7 +2417,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -2458,7 +2458,7 @@ jobs:
  
       - name: Upload compatibility result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-linux-npx-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apt
           if-no-files-found: error 
@@ -2486,7 +2486,7 @@ jobs:
   
       - name: Upload tzlc result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-tzlc-linux-npx-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apt
           if-no-files-found: error 
@@ -2574,7 +2574,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         if: steps.get_image.outputs.digest != '' 
@@ -2615,7 +2615,7 @@ jobs:
             
       - name: Download artifacts
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@v8 
         with: 
           name: icloudpd-npm
           path: | 
@@ -2625,7 +2625,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -2669,7 +2669,7 @@ jobs:
  
       - name: Upload compatibility result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-linux-npm-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apk
           if-no-files-found: error 
@@ -2702,7 +2702,7 @@ jobs:
   
       - name: Upload tzlc result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-tzlc-linux-npm-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apt
           if-no-files-found: error 
@@ -2789,7 +2789,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         if: steps.get_image.outputs.digest != '' 
@@ -2830,7 +2830,7 @@ jobs:
             
       - name: Download artifacts
         if: steps.get_image.outputs.digest != '' 
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@v8 
         with: 
           name: icloudpd-npm
           path: | 
@@ -2840,7 +2840,7 @@ jobs:
         if: steps.get_image.outputs.digest != '' 
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -2883,7 +2883,7 @@ jobs:
  
       - name: Upload compatibility result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-linux-npx-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apk
           if-no-files-found: error 
@@ -2915,7 +2915,7 @@ jobs:
   
       - name: Upload tzlc result 
         if: steps.get_image.outputs.digest != ''  
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-tzlc-linux-npx-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apk
           if-no-files-found: error 
@@ -3008,7 +3008,7 @@ jobs:
           touch compatibility/npx.${{ matrix.image[0] }}.${{ matrix.prop[0] }}.fail 
  
       - name: Upload compatibility result 
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-linux-npm-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apk-fail
           if-no-files-found: error 
@@ -3021,7 +3021,7 @@ jobs:
           touch tzlc/npx.${{ matrix.image[0] }}.${{ matrix.prop[0] }}.fail 
   
       - name: Upload tzlc result 
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-tzlc-linux-npm-${{ matrix.image[0] }}-${{ matrix.prop[0] }}-apk-fail
           if-no-files-found: error 
@@ -3047,7 +3047,7 @@ jobs:
       - name: Setup Node for Registry Server
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         run: |
@@ -3078,7 +3078,7 @@ jobs:
           mkdir compatibility 
  
       - name: Download artifacts
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@v8 
         with: 
           name: icloudpd-npm
           path: | 
@@ -3087,7 +3087,7 @@ jobs:
       - name: Setup Node for Test
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -3119,7 +3119,7 @@ jobs:
           touch compatibility/npm.${{ matrix.os }}.amd64.fail 
  
       - name: Upload compatibility result 
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-windows-npm-${{ matrix.os }}-amd64
           if-no-files-found: error 
@@ -3145,7 +3145,7 @@ jobs:
       - name: Setup Node for Registry Server
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
 
       - name: Create Config
         run: |
@@ -3176,7 +3176,7 @@ jobs:
           mkdir compatibility 
  
       - name: Download artifacts
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@v8 
         with: 
           name: icloudpd-npm
           path: | 
@@ -3185,7 +3185,7 @@ jobs:
       - name: Setup Node for Test
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           registry-url: 'http://localhost:4873'
         env:
           NODE_AUTH_TOKEN: "fake"
@@ -3216,7 +3216,7 @@ jobs:
           touch compatibility/npx.${{ matrix.os }}.amd64.fail 
  
       - name: Upload compatibility result 
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v7 
         with: 
           name: icloudpd-compatibility-windows-npx-${{ matrix.os }}-amd64
           if-no-files-found: error 
@@ -3266,7 +3266,7 @@ jobs:
           mkdir dist
 
       - name: Download Compatibility Results
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           pattern: icloudpd-compatibility-*
           merge-multiple: true
@@ -3274,7 +3274,7 @@ jobs:
             compatibility
 
       - name: Download tzlc Results
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           pattern: icloudpd-tzlc-*
           merge-multiple: true
@@ -3282,7 +3282,7 @@ jobs:
             tzlc
 
       - name: Download Version
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           pattern: icloudpd-version-thumbprint
           merge-multiple: true
@@ -3295,7 +3295,7 @@ jobs:
           scripts/compile_compatibility.py dist/icloudpd-version-thumbprint.txt compatibility | tee dist/compatibility-${{inputs.icloudpd_version}}.md
 
       - name: Upload compatibility report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: icloudpd-compatibility
           if-no-files-found: error
@@ -3308,7 +3308,7 @@ jobs:
           scripts/compile_tzlc.py dist/icloudpd-version-thumbprint.txt tzlc "${{needs.get_expected_version_linux_apt.outputs.expected_version}}" "${{needs.get_expected_version_linux_apk.outputs.expected_version}}" | tee dist/tzlc-${{inputs.icloudpd_version}}.md
 
       - name: Upload tzlc report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: icloudpd-tzlc
           if-no-files-found: error

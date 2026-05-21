@@ -36,7 +36,7 @@ dependencies = [
     "pytz==2026.1.post1",
     "certifi==2026.2.25",
     # Alpine arm/v7 builds cryptography from source; 47.x needs newer Cargo lock parsing.
-    "cryptography>=46,<47",
+    "cryptography>=48,<49",
     "keyring==25.7.0",
     "keyrings-alt==5.0.2",
     "srp==1.0.22",
@@ -45,9 +45,9 @@ dependencies = [
 [dependency-groups]
 doc = [
     "furo==2025.12.19",
-    "Sphinx==8.1.3",
-    "sphinx-autobuild==2024.10.3",
-    "myst-parser==4.0.1"
+    "Sphinx==9.1.0",
+    "sphinx-autobuild==2025.8.25",
+    "myst-parser==5.1.0"
 ]
 dev = [
     "twine==6.2.0",
@@ -68,7 +68,7 @@ test = [
     "ruff==0.15.8",
     "pytest-timeout==2.4.0",
     "pytest-xdist==3.8.0",
-    "mypy==1.19.1",
+    "mypy==2.1.0",
     "types-pytz==2026.1.1.20260304",
     "types-tzlocal==5.1.0.1",
     "types-requests==2.31.0.2",

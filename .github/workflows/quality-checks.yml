@@ -32,7 +32,7 @@ jobs:
       UV_PYTHON: ${{ matrix.python-version }}
     steps:
     - uses: actions/checkout@v6
-    - uses: astral-sh/setup-uv@v5
+    - uses: astral-sh/setup-uv@v8.1.0
       with:
         enable-cache: true
     - name: Install dependencies
@@ -51,7 +51,7 @@ jobs:
       UV_PYTHON: ${{ matrix.python-version }}
     steps:
     - uses: actions/checkout@v6
-    - uses: astral-sh/setup-uv@v5
+    - uses: astral-sh/setup-uv@v8.1.0
       with:
         enable-cache: true
     - name: Install dependencies
@@ -79,12 +79,12 @@ jobs:
         sudo apt-get update && sudo apt-get -y install locales locales-all libimage-exiftool-perl
     - uses: actions/checkout@v6
     - name: Download version info
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: icloudpd-version-info
         path: |
           src/foundation
-    - uses: astral-sh/setup-uv@v5
+    - uses: astral-sh/setup-uv@v8.1.0
       with:
         enable-cache: true
     - name: Install dependencies
@@ -113,7 +113,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: Download version info
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         name: icloudpd-version-info
         path: |
@@ -125,7 +125,7 @@ jobs:
         elif [ "$RUNNER_OS" = "Windows" ]; then
           choco install exiftool -y
         fi
-    - uses: astral-sh/setup-uv@v5
+    - uses: astral-sh/setup-uv@v8.1.0
       with:
         enable-cache: true
     - name: Install dependencies

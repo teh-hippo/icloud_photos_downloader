@@ -1,3 +1,3 @@
 pip>=26.0,<27
 # staticx still imports pkg_resources during Debian package builds.
-setuptools<81
+setuptools<83
