@@ -520,6 +520,29 @@ class PhotoAlbum:
             headers={"Content-type": "text/plain"},
         )
 
+    def lookup_records(self, record_names: Sequence[str]) -> Sequence[Dict[str, Any]]:
+        """Look up specific records by name via CloudKit `records/lookup`.
+
+        Used to obtain freshly-signed asset downloadURLs without re-iterating
+        the whole page. The returned list contains record dicts in the same
+        shape as `records/query`, tagged by `recordType`. Records that were
+        not found come back with a `serverErrorCode` field (or missing
+        `recordType`); callers should treat those as lookup failures.
+        """
+        url = f"{self.service_endpoint}/records/lookup?{urlencode(self.params)}"
+        body = json.dumps(
+            {
+                "records": [{"recordName": name} for name in record_names],
+                "zoneID": self._zone_id,
+            }
+        )
+        response = self.session.post(url, data=body, headers={"Content-type": "text/plain"})
+        data = response.json()
+        records = data.get("records", [])
+        if not isinstance(records, list):
+            return []
+        return typing.cast(Sequence[Dict[str, Any]], records)
+
     @property
     def photos(self) -> Generator["PhotoAsset", Any, None]:
         while True:
@@ -550,7 +573,12 @@ class PhotoAlbum:
             if master_records_len:
                 for master_record in master_records:
                     record_name = master_record["recordName"]
-                    yield PhotoAsset(master_record, asset_records[record_name])
+                    asset = PhotoAsset(master_record, asset_records[record_name])
+                    # Back-reference so the asset can refetch its own records
+                    # via PhotoAsset.refresh() (used by the download retry
+                    # loop when CloudKit signed URLs expire mid-batch).
+                    asset._library = self
+                    yield asset
                     self.increment_offset(1)
             else:
                 break
@@ -721,12 +749,24 @@ class PhotoAlbum:
         return f"<{type(self).__name__}: '{self}'>"
 
 
+class PhotoAssetRefreshError(Exception):
+    """Raised when re-fetching a PhotoAsset's records fails.
+
+    Distinct from generic API errors so the download retry loop can treat
+    a missing-on-server asset differently from a transient lookup failure.
+    """
+
+
 class PhotoAsset:
     def __init__(self, master_record: Dict[str, Any], asset_record: Dict[str, Any]) -> None:
         self._master_record = master_record
         self._asset_record = asset_record
 
         self._versions: Dict[VersionSize, AssetVersion] | None = None
+        # Set by PhotoAlbum.photos when this asset is yielded from iteration.
+        # Used by refresh() to call records/lookup. Optional so tests that
+        # construct PhotoAsset directly continue to work.
+        self._library: PhotoAlbum | None = None
 
     ITEM_TYPES = {
         "public.heic": AssetItemType.IMAGE,
@@ -984,6 +1024,52 @@ class PhotoAsset:
     def download(self, session: Session, url: str, start: int = 0) -> Response:
         """Download this asset using the provided session."""
         return download_asset(session, url, start)
+
+    def refresh(self) -> None:
+        """Re-fetch this asset's records to obtain freshly-signed download URLs.
+
+        CloudKit signs `downloadURL`s at page-fetch time and the signature
+        ages out (~15 min observed). When a download returns 410 Gone, calling
+        `refresh()` swaps in records returned by a fresh `records/lookup`,
+        invalidates the cached `versions` dict so the next `versions` access
+        recomputes from the new records, and yields fresh URLs.
+
+        Raises `PhotoAssetRefreshError` if either expected record is missing
+        from the response (asset deleted server-side or partial failure) or
+        if the asset has no library back-reference to perform the lookup.
+        """
+        if self._library is None:
+            raise PhotoAssetRefreshError("PhotoAsset has no library back-reference; cannot refresh")
+        master_id = self._master_record["recordName"]
+        asset_id = self._asset_record["recordName"]
+        records = self._library.lookup_records([master_id, asset_id])
+
+        fresh_master: Dict[str, Any] | None = None
+        fresh_asset: Dict[str, Any] | None = None
+        for rec in records:
+            # Skip records that came back with a server error (e.g.,
+            # `serverErrorCode: NOT_FOUND` when an asset has been deleted
+            # server-side between iteration and refresh).
+            if rec.get("serverErrorCode") or rec.get("reason"):
+                continue
+            rtype = rec.get("recordType")
+            if rtype == "CPLMaster" and rec.get("recordName") == master_id:
+                fresh_master = rec
+            elif rtype == "CPLAsset" and rec.get("recordName") == asset_id:
+                fresh_asset = rec
+
+        if fresh_master is None or fresh_asset is None:
+            raise PhotoAssetRefreshError(
+                f"Could not refresh asset {master_id}/{asset_id}: "
+                f"lookup returned master={fresh_master is not None}, "
+                f"asset={fresh_asset is not None}"
+            )
+
+        self._master_record = fresh_master
+        self._asset_record = fresh_asset
+        # Invalidate so the next .versions access recomputes from the
+        # freshly-issued downloadURLs.
+        self._versions = None
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}: id={self.id}>"

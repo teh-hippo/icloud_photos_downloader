@@ -149,6 +149,7 @@ class ManifestDedupTest(TestCase):
             version: Any,
             size: Any,
             filename_builder: Callable[..., str],
+            raw_policy: Any,
         ) -> bool:
             """Stub download that writes a file so the post-download manifest upsert runs.
 
