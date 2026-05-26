@@ -29,7 +29,7 @@ jobs:
     - name: Set up Python 3.13
       uses: actions/setup-python@v6
       with:
-        python-version: '3.13'
+        python-version: '3.14'
     
     - name: Install Dev dependencies
       run: >
@@ -67,7 +67,7 @@ jobs:
     - name: Set up Python 3.13
       uses: actions/setup-python@v6
       with:
-        python-version: '3.13'
+        python-version: '3.14'
     
     - name: Install
       run: >
@@ -108,7 +108,7 @@ jobs:
     - name: Set up Python 3.13
       uses: actions/setup-python@v6
       with:
-        python-version: '3.13'
+        python-version: '3.14'
     
     - name: Install Dev dependencies
       run: >
@@ -225,7 +225,7 @@ jobs:
         mkdir -p .cache/root/.cargo/registry
       
     - name: Inject docker cache
-      uses: reproducible-containers/buildkit-cache-dance@v3.1.2
+      uses: reproducible-containers/buildkit-cache-dance@v3.4.0
       with:
         cache-map: |
           {
@@ -282,7 +282,7 @@ jobs:
     - name: Set up Python 3.13
       uses: actions/setup-python@v6
       with:
-        python-version: '3.13'
+        python-version: '3.14'
     
     - name: Install Dev dependencies
       run: >
@@ -324,7 +324,7 @@ jobs:
     - name: Set up Python 3.13
       uses: actions/setup-python@v6
       with:
-        python-version: '3.13'
+        python-version: '3.14'
     
     - name: Install Dev dependencies
       run: >
@@ -365,7 +365,7 @@ jobs:
     - name: Set up Python 3.13
       uses: actions/setup-python@v6
       with:
-        python-version: '3.13'
+        python-version: '3.14'
     
     - name: Install Dev dependencies
       run: >
@@ -435,7 +435,7 @@ jobs:
         mkdir -p .cache/root/.cache/pip
       
     - name: Inject docker cache
-      uses: reproducible-containers/buildkit-cache-dance@v3.1.2
+      uses: reproducible-containers/buildkit-cache-dance@v3.4.0
       with:
         cache-map: |
           {
@@ -488,7 +488,7 @@ jobs:
     - name: Set up Python 3.13
       uses: actions/setup-python@v6
       with:
-        python-version: '3.13'
+        python-version: '3.14'
     
     - name: Install Dev dependencies
       run: >
@@ -3259,7 +3259,7 @@ jobs:
       - name: Set up Python 3.13
         uses: actions/setup-python@v6
         with:
-          python-version: '3.13'
+          python-version: '3.14'
     
       - name: Make folder for artifacts
         run: |

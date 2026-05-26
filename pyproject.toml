@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "setuptools==82.0.1",
-    "wheel==0.46.3",
+    "wheel==0.47.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -10,7 +10,7 @@ version="1.32.2"
 name = "icloudpd"
 description = "icloudpd is a command-line tool to download photos and videos from iCloud."
 readme = "README_PYPI.md"
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.14,<3.15"
 keywords = ["icloud", "photo"]
 license = {file="LICENSE.md"}
 authors=[
@@ -23,7 +23,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
 dependencies = [
-    "requests==2.33.1",
+    "requests==2.34.2",
     "schema==0.7.8",
     "tqdm==4.67.3",
     "piexif==1.1.3",
@@ -33,8 +33,8 @@ dependencies = [
     "waitress==3.0.2",
     # from pyicloud_ipd
     "tzlocal==5.3.1",
-    "pytz==2026.1.post1",
-    "certifi==2026.2.25",
+    "pytz==2026.2",
+    "certifi==2026.5.20",
     # Alpine arm/v7 builds cryptography from source; 47.x needs newer Cargo lock parsing.
     "cryptography>=46,<47",
     "keyring==25.7.0",
@@ -45,17 +45,17 @@ dependencies = [
 [dependency-groups]
 doc = [
     "furo==2025.12.19",
-    "Sphinx==8.1.3",
+    "Sphinx==8.2.3",
     "sphinx-autobuild==2024.10.3",
     "myst-parser==4.0.1"
 ]
 dev = [
     "twine==6.2.0",
-    "pyinstaller==6.19.0",
-    "wheel==0.46.3",
+    "pyinstaller==6.20.0",
+    "wheel==0.47.0",
 ]
 devlinux = [
-    "auditwheel==6.6.0",
+    "auditwheel==6.7.0",
     #"staticx==0.14.1",
     "scons==4.10.1"
 ]
@@ -65,17 +65,17 @@ test = [
     "freezegun==1.5.5",
     "vcrpy==8.1.1",
     "pytest-cov==7.1.0",
-    "ruff==0.15.8",
+    "ruff==0.15.14",
     "pytest-timeout==2.4.0",
     "pytest-xdist==3.8.0",
-    "mypy==1.19.1",
-    "types-pytz==2026.1.1.20260304",
+    "mypy==1.20.2",
+    "types-pytz==2026.2.0.20260518",
     "types-tzlocal==5.1.0.1",
-    "types-requests==2.31.0.2",
+    "types-requests==2.33.0.20260518",
     "types-urllib3==1.26.25.14",
-    "types-tqdm==4.67.3.20260303",
-    "types-mock==5.2.0.20250924",
-    "types-waitress==3.0.1.20260316",
+    "types-tqdm==4.67.3.20260518",
+    "types-mock==5.2.0.20260518",
+    "types-waitress==3.0.1.20260508",
 ]
 
 [project.urls]
