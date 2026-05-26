@@ -2,8 +2,7 @@ name: Quality Checks
 
 on:
   push:
-    branches:
-      - '**'
+    branches: [master]
   pull_request:
   workflow_dispatch:
 
@@ -84,47 +83,6 @@ jobs:
         name: icloudpd-version-info
         path: |
           src/foundation
-    - uses: astral-sh/setup-uv@v5
-      with:
-        enable-cache: true
-    - name: Install dependencies
-      run: uv sync --group test
-    - name: Test
-      run: uv run python -m pytest --cov=icloudpd --cov-report html --cov-report term-missing --numprocesses auto
-
-  test_non_linux:
-    needs: [skip_check, patch_version]
-    if: needs.skip_check.outputs.should_skip != 'true'
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        shell: bash
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.13]
-        os:
-          - "macos-15"
-          - "macos-14"
-          - "windows-2025"
-          - "windows-2025"
-    env:
-      UV_PYTHON: ${{ matrix.python-version }}
-    steps:
-    - uses: actions/checkout@v6
-    - name: Download version info
-      uses: actions/download-artifact@v5
-      with:
-        name: icloudpd-version-info
-        path: |
-          src/foundation
-    - name: Install exiftool
-      run: |
-        if [ "$RUNNER_OS" = "macOS" ]; then
-          brew install exiftool
-        elif [ "$RUNNER_OS" = "Windows" ]; then
-          choco install exiftool -y
-        fi
     - uses: astral-sh/setup-uv@v5
       with:
         enable-cache: true

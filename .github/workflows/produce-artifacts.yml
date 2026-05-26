@@ -3,12 +3,8 @@
 
 name: Produce Artifacts
 
-on: 
-  pull_request:
-    # branches: [ master ]
+on:
   workflow_dispatch:
-    # branches:
-    #   - '**'
 
 
 jobs:
