@@ -585,7 +585,7 @@ test = [
     { name = "pytest-timeout", specifier = "==2.4.0" },
     { name = "pytest-xdist", specifier = "==3.8.0" },
     { name = "ruff", specifier = "==0.15.14" },
-    { name = "types-mock", specifier = "==5.2.0.20250924" },
+    { name = "types-mock", specifier = "==5.2.0.20260518" },
     { name = "types-pytz", specifier = "==2026.1.1.20260304" },
     { name = "types-requests", specifier = "==2.31.0.2" },
     { name = "types-tqdm", specifier = "==4.67.3.20260303" },
@@ -1625,11 +1625,11 @@ wheels = [
 
 [[package]]
 name = "types-mock"
-version = "5.2.0.20250924"
+version = "5.2.0.20260518"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/50/c3/00cf1e62c27fd195aaf22b249884f82643141b73f151ff019aa24c99bd17/types_mock-5.2.0.20250924.tar.gz", hash = "sha256:953197543b4183f00363e8e626f6c7abea1a3f7a4dd69d199addb70b01b6bb35", size = 11319, upload-time = "2025-09-24T02:53:33.093Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ec/a4/26595e2a9407752c2e3cd5b17d7884db847e39834a2575cf15b5c3b19a27/types_mock-5.2.0.20260518.tar.gz", hash = "sha256:49af9c18aac4caa90e0e1e8437e2160cd8b3f126053dae6453d65b393590fcf9", size = 11577, upload-time = "2026-05-18T06:02:42.607Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/05/85/52004fb81add2b05494cbd1c0dab71f3706f19935cabb4ad220643884382/types_mock-5.2.0.20250924-py3-none-any.whl", hash = "sha256:23617ffb4cf948c085db69ec90bd474afbce634ef74995045ae0a5748afbe57d", size = 10499, upload-time = "2025-09-24T02:53:32.054Z" },
+    { url = "https://files.pythonhosted.org/packages/82/d6/da3bf7cc26ebe587e8c50a505d302f5755840fc24fbbd704b770c43b764b/types_mock-5.2.0.20260518-py3-none-any.whl", hash = "sha256:3c511875b6f37d30c70add3e72265d1c21202b8544751361e3ca94f7a757a03d", size = 10459, upload-time = "2026-05-18T06:02:41.224Z" },
 ]
 
 [[package]]
