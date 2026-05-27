@@ -2701,7 +2701,7 @@ class PhotoAssetRefreshTestCase(TestCase):
 
         # Force the versions cache to be populated so we can verify it gets
         # invalidated by refresh.
-        photo._versions = {}  # type: ignore[assignment]
+        photo._versions = {}
 
         photo.refresh()
 
