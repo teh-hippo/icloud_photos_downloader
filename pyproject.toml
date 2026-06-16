@@ -65,7 +65,7 @@ test = [
     "freezegun==1.5.5",
     "vcrpy==8.1.1",
     "pytest-cov==7.1.0",
-    "ruff==0.15.16",
+    "ruff==0.15.17",
     "pytest-timeout==2.4.0",
     "pytest-xdist==3.8.0",
     "mypy==1.19.1",
