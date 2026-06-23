@@ -1,18 +1,18 @@
-FROM alpine:3.23@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11 AS runtime_amd64_none
+FROM alpine:3.24@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b AS runtime_amd64_none
 ENV MUSL_LOCPATH="/usr/share/i18n/locales/musl"
 RUN apk update && apk add --no-cache tzdata musl-locales musl-locales-lang
 WORKDIR /app
 COPY dist/icloud-*.*.*-linux-musl-amd64 icloud
 COPY dist/icloudpd-*.*.*-linux-musl-amd64 icloudpd
 
-FROM alpine:3.23@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11 AS runtime_arm64_none
+FROM alpine:3.24@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b AS runtime_arm64_none
 ENV MUSL_LOCPATH="/usr/share/i18n/locales/musl"
 RUN apk update && apk add --no-cache tzdata musl-locales musl-locales-lang
 WORKDIR /app
 COPY dist/icloud-*.*.*-linux-musl-arm64 icloud
 COPY dist/icloudpd-*.*.*-linux-musl-arm64 icloudpd
 
-FROM alpine:3.23@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11 AS runtime_arm_v7
+FROM alpine:3.24@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b AS runtime_arm_v7
 ENV MUSL_LOCPATH="/usr/share/i18n/locales/musl"
 RUN apk update && apk add --no-cache tzdata musl-locales musl-locales-lang
 WORKDIR /app
