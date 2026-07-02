@@ -6,7 +6,7 @@
 # arm7l instead of v6 issue: https://stackoverflow.com/questions/78535054/how-do-you-docker-buildx-build-for-arm-v6-on-qemu-emulated-platforms-that-pres
 
 # map source image to base
-FROM python:3.13 AS base
+FROM python:3.13@sha256:4c822f0fadfeba9ea973d81fb5bbd5c2106f12ae02d0a5cdd48907909395310b AS base
 ARG TARGETARCH
 ARG TARGETVARIANT
 ENV DEBIAN_FRONTEND=noninteractive
