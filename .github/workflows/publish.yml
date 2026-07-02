@@ -28,17 +28,17 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Download artifacts 
-        uses: actions/download-artifact@v5 
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5 
         with: 
           name: icloudpd-oci
           path: | 
             dist 
  
       - name: Run skopeo 
-        uses: addnab/docker-run-action@v3 
+        uses: addnab/docker-run-action@4f65fabd2431ebc8d299f8e5a018d79a769ae185 # v3 
         with: 
           image: quay.io/skopeo/stable:v1.14.0 
           shell: sh 
@@ -48,7 +48,7 @@ jobs:
             (skopeo copy --preserve-digests --src-creds=${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_PASSWORD }} --dest-creds=${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_PASSWORD }} --all docker://docker.io/icloudpd/icloudpd:${{inputs.icloudpd_version}} docker://docker.io/icloudpd/icloudpd:latest)
   
       - name: Update repo description
-        uses: peter-evans/dockerhub-description@v5
+        uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
@@ -60,13 +60,13 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Download artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: icloudpd-npm
           path: |
@@ -88,10 +88,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
         with:
           enable-cache: true
 
@@ -99,14 +99,14 @@ jobs:
         run: uv sync --python 3.13 --group dev
 
       - name: Download artifacts (src)
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: icloudpd-src
           path: |
             dist
 
       - name: Download artifacts (bin)
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           pattern: icloudpd-bin-*
           merge-multiple: true
@@ -126,14 +126,14 @@ jobs:
     steps:
 
       - name: Download artifacts (src)
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: icloudpd-src
           path: |
             dist
 
       - name: Download artifacts (bin)
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           pattern: icloudpd-bin-*
           merge-multiple: true
@@ -141,35 +141,35 @@ jobs:
             dist
 
       - name: Download artifacts (docker)
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: icloudpd-oci
           path: |
             dist
 
       - name: Download artifacts (compatibility)
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: icloudpd-compatibility
           path: |
             dist
 
       - name: Download artifacts (tzlc compatibility)
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: icloudpd-tzlc
           path: |
             dist
 
       - name: Download artifacts (notes)
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: icloudpd-notes
           path: |
             dist
 
       - name: Create Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1
         with:
           artifacts: "dist/*"
           bodyFile: dist/notes-${{inputs.icloudpd_version}}.md
