@@ -358,7 +358,7 @@ def _needs_update(
     if (write_all or "location" in config) and update.gps_latitude is not None and update.gps_longitude is not None:
         # exiftool -n returns already-signed GPS values
         if not _gps_close(existing.get("GPSLatitude"), update.gps_latitude):
-            logger.debug("needs_update: %s: gps_latitude (existing=%s, update=%s)", file_path, existing.get("GPSLatitude"), update.gps_latitude)
+            logger.debug("needs_update: %s: gps_latitude", file_path)
             return True
         if not _gps_close(existing.get("GPSLongitude"), update.gps_longitude):
             logger.debug("needs_update: %s: gps_longitude", file_path)
@@ -431,9 +431,9 @@ def write_metadata(
 
     if dry_run:
         logger.info(
-            "Would write metadata to %s: %s",
+            "Would write metadata to %s (%d field(s))",
             file_path,
-            " ".join(args),
+            len(args),
         )
         return True
 
